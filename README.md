@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# floral_doctor — Doctor Florist. Canada
 
-## Getting Started
+A premium, minimal portfolio website for a Canadian florist brand. Built with Next.js 14 (App Router) and Tailwind CSS.
 
-First, run the development server:
+## Features
+
+- **Premium design** — Soft pastel palette (beige, blush pink, off-white), elegant typography (Playfair Display + Source Sans 3)
+- **Fully responsive** — Mobile-first design
+- **SEO optimized** — Metadata per page, semantic HTML
+- **WhatsApp integration** — Dynamic enquiry links for each product
+- **Smooth animations** — Fade-in effects, image hover zoom
+- **Fast loading** — next/image optimization, lazy loading
+
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### WhatsApp Number
+Edit `src/lib/whatsapp.ts` and replace `WHATSAPP_NUMBER` with your actual number (with country code, no + or spaces):
 
-## Learn More
+```ts
+const WHATSAPP_NUMBER = "1234567890"; // e.g. 14165551234 for Canada
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Products
+Edit `src/data/products.ts` to add or modify flower arrangements.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+├── app/
+│   ├── layout.tsx          # Root layout, fonts, metadata
+│   ├── page.tsx            # Home page
+│   ├── not-found.tsx       # 404 page
+│   └── collection/
+│       ├── page.tsx        # Collection grid
+│       └── [slug]/page.tsx # Product detail
+├── components/
+│   ├── Navbar.tsx
+│   ├── Footer.tsx
+│   ├── HeroSection.tsx
+│   ├── CategorySection.tsx
+│   ├── WhyChooseUs.tsx
+│   ├── GalleryPreview.tsx
+│   ├── ProductCard.tsx
+│   ├── ProductGrid.tsx
+│   └── WhatsAppButton.tsx
+├── data/
+│   └── products.ts         # Product data
+└── lib/
+    └── whatsapp.ts         # WhatsApp URL helper
+```
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
