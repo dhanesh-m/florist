@@ -14,17 +14,22 @@ const nextConfig = {
       },
       {
         source: "/admin/forgot-password",
-        destination: "/admin/login",
+        destination: "/admin",
         permanent: true,
       },
       {
         source: "/admin/reset-password",
-        destination: "/admin/login",
+        destination: "/admin",
         permanent: true,
       },
       {
         source: "/admin/create-password",
-        destination: "/admin/login",
+        destination: "/admin",
+        permanent: true,
+      },
+      {
+        source: "/admin/login",
+        destination: "/admin",
         permanent: true,
       },
     ];

@@ -3,7 +3,7 @@ import { getAdminContentServer } from "@/lib/admin-content-server";
 
 export const dynamic = "force-dynamic";
 
-/** Public JSON for site UI. `password` is stripped before sending. */
+/** Public JSON for site UI. Legacy `password` fields removed if present. */
 export async function GET() {
   const doc = await getAdminContentServer();
   if (!doc) {
@@ -13,7 +13,7 @@ export async function GET() {
       },
     });
   }
-  const safe = { ...doc };
+  const safe = { ...doc } as Record<string, unknown>;
   delete safe.password;
   return NextResponse.json(safe, {
     headers: {

@@ -59,8 +59,6 @@ export interface AboutDoc {
 }
 
 export interface AdminContentDoc {
-  /** Admin login only — stored in Firestore; never exposed on the public site API. */
-  password?: string;
   hero?: HeroDoc;
   categories?: CategoryDoc[];
   products?: ProductDoc[];

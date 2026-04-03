@@ -27,8 +27,7 @@ This app uses **Firebase Hosting** with the **Web Frameworks** integration (`fir
    Optional / recommended:
 
    - `NEXT_PUBLIC_SITE_URL` — your live canonical URL (metadata, OG, favicon)
-   - Admin password: string field **`password`** on Firestore **`adminContent/main`**. Login compares it to the form value. It is **not** returned by `/api/public/site-content`.
-   - **Firestore rules** must allow **read** on `adminContent/{doc}` (at least `main`) so the server can load the document with the Firebase client config—same requirement as the public site content API.
+   - **Firestore rules** must allow **read** (and client **write** for the admin panel) on `adminContent/main` for your Firebase web app—same as the public site content API.
 
    Configure these for the **Firebase Hosting / framework backend** in the [Firebase Console](https://console.firebase.google.com/) (Project → Hosting → your site → **Environment configuration**) or via the [Firebase CLI env docs](https://firebase.google.com/docs/functions/config-env). Do **not** commit secrets.
 
@@ -58,11 +57,7 @@ Workflow: `.github/workflows/firebase-hosting-deploy.yml`
 ## After deploy
 
 - Open the **Hosting** URL in the Firebase Console (or your custom domain).
-- Confirm admin login, `/api/public/site-content`, and Firestore-backed content.
-
-### Admin login troubleshooting
-
-- **“Configure admin access”** on `/admin/login` usually means Firestore rules blocking read of `adminContent/main`, or no **`password`** field on that document.
+- Confirm **`/admin`** (content editor), `/api/public/site-content`, and Firestore-backed content.
 
 ## Custom domain (`www.floraldoctor.ca`)
 

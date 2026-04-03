@@ -1,6 +1,6 @@
 "use client";
 
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "./firebase-client";
 import type { AdminContentDoc } from "./admin-content-types";
 import { compressAdminImageFileToDataUrl, compressLargeAdminDataUrlsInDoc } from "./admin-image-compression";
@@ -45,13 +45,6 @@ const MAX_DOC_JSON_CHARS = 950_000;
 export async function saveAdminContent(state: AdminContentDoc): Promise<void> {
   const sanitized = await compressLargeAdminDataUrlsInDoc(state);
   const ref = doc(db, "adminContent", "main");
-  const snap = await getDoc(ref);
-  if (snap.exists()) {
-    const existing = snap.data() as AdminContentDoc;
-    if (typeof existing.password === "string" && existing.password.length > 0 && !sanitized.password) {
-      sanitized.password = existing.password;
-    }
-  }
   const payload = stripUndefinedForFirestore(structuredClone(sanitized));
   const serialized = JSON.stringify(payload);
   if (serialized.length > MAX_DOC_JSON_CHARS) {
