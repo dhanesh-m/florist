@@ -3,6 +3,17 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["firebase-admin", "firebase"],
   },
+  /** Apex → www (both can be added in Firebase Hosting; keeps one canonical host). */
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "floraldoctor.ca" }],
+        destination: "https://www.floraldoctor.ca/:path*",
+        permanent: true,
+      },
+    ];
+  },
   /** Browsers request `/favicon.ico` by default; map to the generated PNG at `/icon`. */
   async rewrites() {
     return [{ source: "/favicon.ico", destination: "/icon" }];

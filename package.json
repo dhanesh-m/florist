@@ -2,6 +2,9 @@
   "name": "dr.florist",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "clean": "rm -rf .next",
     "dev": "next dev",
@@ -11,6 +14,7 @@
     "start": "next start",
     "lint": "next lint",
     "deploy:firebase": "firebase deploy --only hosting",
+    "firebase:deploy": "firebase deploy --only hosting",
     "seed:admin-password": "node scripts/seed-admin-password.mjs"
   },
   "dependencies": {
@@ -25,6 +29,7 @@
     "sonner": "^2.0.7"
   },
   "devDependencies": {
+    "firebase-tools": "^13.29.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
