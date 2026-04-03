@@ -1,10 +1,18 @@
+import { timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
 import { COOKIE_NAME, signSession } from "@/lib/admin-session";
-import {
-  getAdminAuthMain,
-  migrateEnvPasswordToFirestore,
-  verifyPassword,
-} from "@/lib/admin-auth-firestore";
+import { getAdminContentServer } from "@/lib/admin-content-server";
+
+function safeEqualPlain(a: string, b: string): boolean {
+  try {
+    const ba = Buffer.from(a, "utf8");
+    const bb = Buffer.from(b, "utf8");
+    if (ba.length !== bb.length) return false;
+    return timingSafeEqual(ba, bb);
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(req: Request) {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -24,24 +32,13 @@ export async function POST(req: Request) {
     return Response.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  const envPassword = process.env.ADMIN_PASSWORD;
-  const data = await getAdminAuthMain();
-  const hash = data?.passwordHash;
-
-  let valid = false;
-
-  if (hash) {
-    valid = await verifyPassword(plain, hash);
-  } else if (envPassword && plain === envPassword) {
-    valid = true;
-    try {
-      await migrateEnvPasswordToFirestore(plain, process.env.ADMIN_EMAIL);
-    } catch {
-      // Firestore migration failed; login still succeeds with env-only mode
-    }
+  const doc = await getAdminContentServer();
+  const stored = doc?.password;
+  if (typeof stored !== "string" || !stored.length) {
+    return Response.json({ error: "Server not configured" }, { status: 503 });
   }
 
-  if (!valid) {
+  if (!safeEqualPlain(plain, stored)) {
     return Response.json({ error: "Invalid password" }, { status: 401 });
   }
 

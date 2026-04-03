@@ -7,10 +7,7 @@ import { AdminSignOut } from "@/components/admin/AdminSignOut";
 
 export function AdminChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLogin =
-    pathname === "/admin/login" ||
-    pathname === "/admin/forgot-password" ||
-    pathname === "/admin/reset-password";
+  const isLogin = pathname === "/admin/login";
 
   return (
     <div className="min-h-screen bg-[#faf9f7]">

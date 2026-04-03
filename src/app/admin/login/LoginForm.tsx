@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -56,22 +55,17 @@ export function LoginForm({ misconfigured }: Props) {
         <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p className="font-medium">Configure admin access</p>
           <p className="mt-2">
-            Copy <code className="font-mono text-xs">.env.example</code> to{" "}
-            <code className="font-mono text-xs">.env.local</code>, set{" "}
-            <code className="font-mono text-xs">ADMIN_SESSION_SECRET</code> (16+ random characters) and either{" "}
-            <code className="font-mono text-xs">ADMIN_PASSWORD</code> (initial sign-in) or{" "}
-            <code className="font-mono text-xs">FIREBASE_SERVICE_ACCOUNT_JSON</code> with an existing password in
-            Firestore <code className="font-mono text-xs">adminAuth/main</code>, then restart{" "}
-            <code className="font-mono text-xs">npm run dev</code>.
+            Set <code className="font-mono text-xs">ADMIN_SESSION_SECRET</code> (16+ random characters) and{" "}
+            <code className="font-mono text-xs">FIREBASE_SERVICE_ACCOUNT_JSON</code> in your environment. Add a{" "}
+            <code className="font-mono text-xs">password</code> field on the Firestore document{" "}
+            <code className="font-mono text-xs">adminContent/main</code> (same document as site content), then restart
+            or redeploy.
           </p>
         </div>
       )}
 
       {searchParams.get("error") === "config" && !misconfigured && (
         <p className="mb-4 text-sm text-amber-800">Session secret was missing; try again after configuring env.</p>
-      )}
-      {searchParams.get("reset") === "ok" && !misconfigured && (
-        <p className="mb-4 text-sm text-green-800">Password updated. Sign in with your new password.</p>
       )}
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -90,13 +84,6 @@ export function LoginForm({ misconfigured }: Props) {
           />
         </div>
         {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        {!misconfigured ? (
-          <p className="text-sm text-center">
-            <Link href="/admin/forgot-password" className="text-[#b89164] hover:text-[#9f774d] font-medium">
-              Forgot password?
-            </Link>
-          </p>
-        ) : null}
         <button
           type="submit"
           disabled={misconfigured || pending}

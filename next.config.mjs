@@ -12,6 +12,21 @@ const nextConfig = {
         destination: "https://www.floraldoctor.ca/:path*",
         permanent: true,
       },
+      {
+        source: "/admin/forgot-password",
+        destination: "/admin/login",
+        permanent: true,
+      },
+      {
+        source: "/admin/reset-password",
+        destination: "/admin/login",
+        permanent: true,
+      },
+      {
+        source: "/admin/create-password",
+        destination: "/admin/login",
+        permanent: true,
+      },
     ];
   },
   /** Browsers request `/favicon.ico` by default; map to the generated PNG at `/icon`. */

@@ -4,8 +4,8 @@ import { getFirestore, type Firestore } from "firebase-admin/firestore";
 let app: App | null | undefined;
 
 /**
- * Firebase Admin (server-only). Required to read/write `adminAuth/*` with bcrypt hashes
- * without exposing them via client Firestore rules.
+ * Firebase Admin (server-only). Required to read `adminContent/main` (including login `password`)
+ * when Firestore rules block client reads.
  *
  * Set `FIREBASE_SERVICE_ACCOUNT_JSON` to the full JSON of a service account key (single line in .env).
  */

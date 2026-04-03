@@ -29,7 +29,7 @@ This app uses **Firebase Hosting** with the **Web Frameworks** integration (`fir
    - `ADMIN_SESSION_SECRET` (16+ chars)
    - `FIREBASE_SERVICE_ACCOUNT_JSON` (single-line service account JSON for Admin SDK / Firestore)
    - `NEXT_PUBLIC_SITE_URL` — your live canonical URL (metadata, OG, favicon)
-   - Optional: `ADMIN_EMAIL`, `RESEND_API_KEY`, `RESEND_FROM` for forgot-password email
+   - Admin password: add a string field **`password`** on Firestore **`adminContent/main`** (Firebase Console or any editor). Sign-in compares the login form to that value. It is **not** returned by the public `/api/public/site-content` API.
 
    Configure these for the **Firebase Hosting / framework backend** in the [Firebase Console](https://console.firebase.google.com/) (Project → Hosting → your site → **Environment configuration**) or via the [Firebase CLI env docs](https://firebase.google.com/docs/functions/config-env). Do **not** commit secrets.
 
@@ -61,6 +61,10 @@ Workflow: `.github/workflows/firebase-hosting-deploy.yml`
 - Open the **Hosting** URL in the Firebase Console (or your custom domain).
 - Confirm admin login, `/api/public/site-content`, and Firestore-backed content.
 
+### Admin login troubleshooting
+
+- **“Configure admin access”** on `/admin/login` means missing `ADMIN_SESSION_SECRET`, missing/unreadable `adminContent/main` via Admin SDK, or no **`password`** field on that document. Set env in Firebase and ensure `adminContent/main` exists with a `password` string.
+
 ## Custom domain (`www.floraldoctor.ca`)
 
 1. In [Firebase Console](https://console.firebase.google.com/) → your project → **Hosting** → **Add custom domain**.
@@ -73,7 +77,7 @@ Workflow: `.github/workflows/firebase-hosting-deploy.yml`
    NEXT_PUBLIC_SITE_URL=https://www.floraldoctor.ca
    ```
 
-   Redeploy after changing env so metadata, favicon base URL, and forgot-password links use the real domain.
+   Redeploy after changing env so metadata and favicon base URL use the real domain.
 
 ## Useful links
 

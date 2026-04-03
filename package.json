@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.0.0"
+    "node": "20"
   },
   "scripts": {
     "clean": "rm -rf .next",
@@ -14,23 +14,19 @@
     "start": "next start",
     "lint": "next lint",
     "deploy:firebase": "firebase deploy --only hosting",
-    "firebase:deploy": "firebase deploy --only hosting",
-    "seed:admin-password": "node scripts/seed-admin-password.mjs"
+    "firebase:deploy": "firebase deploy --only hosting"
   },
   "dependencies": {
-    "bcryptjs": "^3.0.3",
     "firebase": "^12.11.0",
     "firebase-admin": "^13.7.0",
     "framer-motion": "^11.18.2",
     "next": "14.2.35",
     "react": "^18",
     "react-dom": "^18",
-    "resend": "^6.10.0",
     "sonner": "^2.0.7"
   },
   "devDependencies": {
     "firebase-tools": "^13.29.1",
-    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
