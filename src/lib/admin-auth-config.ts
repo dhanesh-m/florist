@@ -1,13 +1,10 @@
 import { getAdminContentServer } from "./admin-content-server";
 
-/**
- * Admin login is available when the session secret is set and `adminContent/main` has a non-empty
- * `password` field (plain text, compared on the server).
- */
+/** True when `adminContent/main` has a non-empty `password` field (and Firestore is readable). */
 export async function isAdminLoginReady(): Promise<boolean> {
-  const secret = process.env.ADMIN_SESSION_SECRET;
-  if (!secret || secret.length < 16) return false;
   const doc = await getAdminContentServer();
   const p = doc?.password;
-  return typeof p === "string" && p.length > 0;
+  if (typeof p === "string") return p.trim().length > 0;
+  if (p === undefined || p === null) return false;
+  return String(p).trim().length > 0;
 }

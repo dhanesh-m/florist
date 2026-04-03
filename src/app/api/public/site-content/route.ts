@@ -3,7 +3,7 @@ import { getAdminContentServer } from "@/lib/admin-content-server";
 
 export const dynamic = "force-dynamic";
 
-/** Public JSON for site UI. Uses Admin SDK on the server when configured (bypasses Firestore client rules). */
+/** Public JSON for site UI. `password` is stripped before sending. */
 export async function GET() {
   const doc = await getAdminContentServer();
   if (!doc) {

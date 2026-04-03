@@ -32,8 +32,10 @@ export function LoginForm({ misconfigured }: Props) {
         body: JSON.stringify({ password }),
       });
       if (!r.ok) {
-        const msg =
-          r.status === 503 ? "Server is not configured for admin login." : "Wrong password.";
+        const data = (await r.json().catch(() => ({}))) as { error?: string; message?: string };
+        const fallback =
+          r.status === 503 ? "Admin login isn’t configured (Firestore password missing or unreadable)." : "Wrong password.";
+        const msg = (typeof data.message === "string" && data.message.trim()) || fallback;
         setError(msg);
         toast.error("Sign-in failed", { description: msg });
         return;
@@ -55,17 +57,11 @@ export function LoginForm({ misconfigured }: Props) {
         <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <p className="font-medium">Configure admin access</p>
           <p className="mt-2">
-            Set <code className="font-mono text-xs">ADMIN_SESSION_SECRET</code> (16+ random characters) and{" "}
-            <code className="font-mono text-xs">FIREBASE_SERVICE_ACCOUNT_JSON</code> in your environment. Add a{" "}
-            <code className="font-mono text-xs">password</code> field on the Firestore document{" "}
-            <code className="font-mono text-xs">adminContent/main</code> (same document as site content), then restart
-            or redeploy.
+            In Firestore, add a string field <code className="font-mono text-xs">password</code> on document{" "}
+            <code className="font-mono text-xs">adminContent/main</code>. Ensure Firestore rules allow reading that
+            document, then try again.
           </p>
         </div>
-      )}
-
-      {searchParams.get("error") === "config" && !misconfigured && (
-        <p className="mb-4 text-sm text-amber-800">Session secret was missing; try again after configuring env.</p>
       )}
 
       <form onSubmit={onSubmit} className="space-y-4">

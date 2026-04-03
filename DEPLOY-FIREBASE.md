@@ -24,12 +24,11 @@ This app uses **Firebase Hosting** with the **Web Frameworks** integration (`fir
 
 3. **Production environment variables**
 
-   The server needs the same secrets as local admin/API routes, for example:
+   Optional / recommended:
 
-   - `ADMIN_SESSION_SECRET` (16+ chars)
-   - `FIREBASE_SERVICE_ACCOUNT_JSON` (single-line service account JSON for Admin SDK / Firestore)
    - `NEXT_PUBLIC_SITE_URL` — your live canonical URL (metadata, OG, favicon)
-   - Admin password: add a string field **`password`** on Firestore **`adminContent/main`** (Firebase Console or any editor). Sign-in compares the login form to that value. It is **not** returned by the public `/api/public/site-content` API.
+   - Admin password: string field **`password`** on Firestore **`adminContent/main`**. Login compares it to the form value. It is **not** returned by `/api/public/site-content`.
+   - **Firestore rules** must allow **read** on `adminContent/{doc}` (at least `main`) so the server can load the document with the Firebase client config—same requirement as the public site content API.
 
    Configure these for the **Firebase Hosting / framework backend** in the [Firebase Console](https://console.firebase.google.com/) (Project → Hosting → your site → **Environment configuration**) or via the [Firebase CLI env docs](https://firebase.google.com/docs/functions/config-env). Do **not** commit secrets.
 
@@ -63,7 +62,7 @@ Workflow: `.github/workflows/firebase-hosting-deploy.yml`
 
 ### Admin login troubleshooting
 
-- **“Configure admin access”** on `/admin/login` means missing `ADMIN_SESSION_SECRET`, missing/unreadable `adminContent/main` via Admin SDK, or no **`password`** field on that document. Set env in Firebase and ensure `adminContent/main` exists with a `password` string.
+- **“Configure admin access”** on `/admin/login` usually means Firestore rules blocking read of `adminContent/main`, or no **`password`** field on that document.
 
 ## Custom domain (`www.floraldoctor.ca`)
 

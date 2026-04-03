@@ -76,14 +76,6 @@ function productTagsFromDoc(tags?: string[]): Set<ProductTags> {
   return s;
 }
 
-function readLocalState(): AdminContentDoc | null {
-  try {
-    return JSON.parse(localStorage.getItem(KEY) || "null") as AdminContentDoc | null;
-  } catch {
-    return null;
-  }
-}
-
 /**
  * Sets status + error toast. Returns true if there were errors (caller should return).
  * @param toastTitle Short title for the toast (e.g. "Can't save product").
@@ -105,10 +97,8 @@ function reportValidationErrors(
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState<AdminTab>("hero");
-  const [state, setState] = useState<AdminContentDoc>(() => {
-    if (typeof window === "undefined") return SITE_CONTENT_DEFAULTS;
-    return mergeAdminWithSiteDefaults(readLocalState());
-  });
+  /** Same initial value on server and client — avoids hydration mismatch (e.g. hero “Choose image” vs “Edit image”). */
+  const [state, setState] = useState<AdminContentDoc>(() => SITE_CONTENT_DEFAULTS);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string>("");
   const [cloudLoaded, setCloudLoaded] = useState(false);

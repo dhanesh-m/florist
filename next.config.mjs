@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ["firebase-admin", "firebase"],
+    serverComponentsExternalPackages: ["firebase"],
   },
   /** Apex → www (both can be added in Firebase Hosting; keeps one canonical host). */
   async redirects() {

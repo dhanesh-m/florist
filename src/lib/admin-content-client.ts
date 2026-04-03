@@ -21,9 +21,8 @@ export function invalidateAdminContentCache(): void {
 }
 
 /**
- * Loads published site content. Uses `GET /api/public/site-content` (server reads Firestore via
- * Admin SDK when `FIREBASE_SERVICE_ACCOUNT_JSON` is set), so the public app does not depend on
- * Firestore Security Rules allowing anonymous reads.
+ * Loads published site content. Uses `GET /api/public/site-content` (server reads Firestore via the
+ * Firebase client config), so the public app does not depend on client-side Firestore access.
  *
  * @param force - If true, skip in-memory cache (e.g. admin panel after edits).
  */
