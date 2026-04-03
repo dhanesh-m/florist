@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "919633604079"; // +91 96336 04079 - Enquire via WhatsApp
+const WHATSAPP_NUMBER = "918136828150"; // +91 81368 28150 - Enquire via WhatsApp
 
 export function getWhatsAppEnquiryUrl(productName: string, price: number): string {
   const text = encodeURIComponent(

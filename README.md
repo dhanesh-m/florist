@@ -1,4 +1,4 @@
-# floral_doctor — Doctor Florist. Canada
+# Floral Doctor — Floral Doctor. Canada
 
 A premium, minimal portfolio website for a Canadian florist brand. Built with Next.js 14 (App Router) and Tailwind CSS.
 
@@ -19,6 +19,20 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Admin (separate app)
+
+Content is edited in the sibling project `../dr.florist-admin`. The admin runs on **port 3001** (this site uses **3000**).
+
+From **this** folder you can start the admin with:
+
+```bash
+npm run admin
+```
+
+Or from `../dr.florist-admin`: `npm install` once, then `npm run dev`, and open [http://localhost:3001](http://localhost:3001).
+
+Do not use [http://localhost:3000](http://localhost:3000) for the admin — that is the public site.
 
 ## Configuration
 

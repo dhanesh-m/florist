@@ -1,27 +1,54 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
+import ContentImage from "@/components/ContentImage";
+import { getAdminContentClient } from "@/lib/admin-content-client";
+import { SITE_CONTENT_DEFAULTS } from "@/lib/site-content-defaults";
 
-const galleryImages = [
-  "/images/bouquet-1.jpeg",
-  "/images/bouquet-2.jpeg",
-  "/images/bouquet-3.jpeg",
-  "/images/bouquet-4.jpeg",
-  "/images/bouquet-5.jpeg",
-  "/images/bouquet-6.jpeg",
-  "/images/bouquet-7.jpeg",
-  "/images/bouquet-8.jpeg",
-];
+const GALLERY_SLOTS = 8;
 
-const INSTAGRAM_URL = "https://instagram.com/floral_doctor";
+const FALLBACK_INSTAGRAM_URL =
+  SITE_CONTENT_DEFAULTS.settings?.instagramUrl ?? "https://instagram.com/floral_doctor";
 
 export default function GalleryPreview() {
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [instagramUrl, setInstagramUrl] = useState<string>(FALLBACK_INSTAGRAM_URL);
+
+  useEffect(() => {
+    let mounted = true;
+    getAdminContentClient(false).then((doc) => {
+      if (!mounted || !doc) return;
+
+      if (doc.settings?.instagramUrl) {
+        setInstagramUrl(doc.settings.instagramUrl);
+      }
+
+      const visibleItems = (doc.instagram || [])
+        .filter((item) => item?.isVisible !== false && item?.imageUrl)
+        .map((item) => item.imageUrl as string);
+
+      if (visibleItems.length) {
+        setGalleryImages(visibleItems);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const feed = useMemo(() => {
+    const srcs = [...galleryImages];
+    while (srcs.length < GALLERY_SLOTS) srcs.push("");
+    return srcs.slice(0, GALLERY_SLOTS);
+  }, [galleryImages]);
+
   return (
     <section className="py-28 md:py-40 bg-[#faf9f7] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-16">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 1, y: 0 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.7 }}
@@ -41,13 +68,13 @@ export default function GalleryPreview() {
 
       {/* Gallery grid with stagger reveal */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-4 md:px-6 max-w-6xl mx-auto">
-        {galleryImages.map((src, index) => (
+        {feed.map((src, index) => (
           <motion.a
             key={index}
-            href={INSTAGRAM_URL}
+            href={instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 1, scale: 1 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{
@@ -57,12 +84,11 @@ export default function GalleryPreview() {
             whileHover={{ scale: 1.03, y: -6 }}
             className="group relative aspect-square overflow-hidden rounded-2xl shadow-elegant"
           >
-            <Image
+            <ContentImage
               src={src}
               alt={`Gallery ${index + 1}`}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-[#1a1512]/0 group-hover:bg-[#1a1512]/20 transition-colors duration-500" />
           </motion.a>
@@ -70,18 +96,18 @@ export default function GalleryPreview() {
       </div>
 
       <motion.div
-        initial={{ opacity: 0 }}
+        initial={{ opacity: 1 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         className="mt-16 text-center"
       >
         <a
-          href={INSTAGRAM_URL}
+          href={instagramUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 text-[#2a2521] hover:text-gold-600 font-medium transition-colors group"
         >
-          <span>@floral_doctor</span>
+          <span>Floral Doctor</span>
           <svg
             className="w-5 h-5 group-hover:translate-x-1 transition-transform"
             fill="none"

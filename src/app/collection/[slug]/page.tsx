@@ -1,12 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProductBySlug, products } from "@/data/products";
+import { getProductBySlug } from "@/data/products";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import ProductDetailImage from "@/components/ProductDetailImage";
+import { getAdminContentServer } from "@/lib/admin-content-server";
+import { normalizeAdminProducts } from "@/lib/normalize-admin-products";
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -14,22 +14,28 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const doc = await getAdminContentServer();
+  const adminProducts = normalizeAdminProducts(doc);
+  const product = adminProducts.find((p) => p.slug === slug) || getProductBySlug(slug);
   if (!product) return { title: "Product Not Found" };
+  /** Avoid empty OG image when seed data has no image URL yet. */
+  const ogImages = product.image?.trim() ? [product.image] : undefined;
   return {
     title: product.name,
     description: product.description,
     openGraph: {
       title: product.name,
       description: product.description,
-      images: [product.image],
+      ...(ogImages ? { images: ogImages } : {}),
     },
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const doc = await getAdminContentServer();
+  const adminProducts = normalizeAdminProducts(doc);
+  const product = adminProducts.find((p) => p.slug === slug) || getProductBySlug(slug);
 
   if (!product) notFound();
 
@@ -57,42 +63,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-          {/* Image */}
-          <div className="relative aspect-square rounded-3xl overflow-hidden shadow-premium">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
-            {product.tag && (
-              <span
-                className={`
-                  absolute top-8 left-8 px-4 py-2 rounded-full text-sm font-medium tracking-wide uppercase
-                  ${
-                    product.tag === "New"
-                      ? "bg-gold-500 text-[#1a1512]"
-                      : product.tag === "Bestseller"
-                        ? "bg-[#1a1512] text-gold-300"
-                        : "bg-blush-500 text-white"
-                  }
-                `}
-              >
-                {product.tag}
-              </span>
-            )}
-          </div>
+          <ProductDetailImage product={product} />
 
           {/* Details */}
           <div>
             <h1 className="font-display text-4xl md:text-5xl text-[#2a2521] mb-4">
               {product.name}
             </h1>
-            <p className="text-gold-600 font-semibold text-2xl mb-8">
-              ${product.price}
-            </p>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+              <p className="text-gold-600 font-semibold text-2xl">
+                Starting from ${product.price}
+              </p>
+              <WhatsAppButton
+                productName={product.name}
+                price={product.price}
+                label="Order now"
+                className="w-full sm:w-auto text-base px-8 py-3.5 shrink-0"
+              />
+            </div>
             <p className="text-beige-700 text-lg leading-relaxed mb-10">
               {product.description}
             </p>
@@ -104,12 +92,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 discuss availability.
               </p>
             </div>
-
-            <WhatsAppButton
-              productName={product.name}
-              price={product.price}
-              className="w-full sm:w-auto text-base px-8 py-4"
-            />
           </div>
         </div>
       </div>

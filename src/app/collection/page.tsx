@@ -1,6 +1,8 @@
-import { products } from "@/data/products";
 import ProductGrid from "@/components/ProductGrid";
 import type { Metadata } from "next";
+import { getAdminContentServer } from "@/lib/admin-content-server";
+import { normalizeAdminProducts } from "@/lib/normalize-admin-products";
+import { products } from "@/data/products";
 
 export const metadata: Metadata = {
   title: "Collection",
@@ -14,16 +16,46 @@ const categoryMap: Record<string, "Bouquet" | "Wedding" | "Custom"> = {
   custom: "Custom",
 };
 
+function inferCategoryType(
+  categorySlug: string | undefined,
+  categories?: { slug?: string; name?: string }[]
+): { type: "Bouquet" | "Wedding" | "Custom"; label: string } | null {
+  if (!categorySlug) return null;
+  if (categoryMap[categorySlug]) {
+    return { type: categoryMap[categorySlug], label: categoryMap[categorySlug] };
+  }
+
+  const slugLower = categorySlug.toLowerCase();
+  const adminCat = categories?.find((c) => (c.slug || "").toLowerCase() === slugLower);
+  const nameLower = (adminCat?.name || "").toLowerCase();
+
+  if (nameLower.includes("wedding") || slugLower.includes("wedding")) {
+    return { type: "Wedding", label: "Wedding" };
+  }
+  if (nameLower.includes("custom") || slugLower.includes("custom")) {
+    return { type: "Custom", label: "Custom" };
+  }
+  if (nameLower.includes("bouquet") || slugLower.includes("bouquet") || nameLower.includes("bouquets")) {
+    return { type: "Bouquet", label: "Bouquet" };
+  }
+
+  return null;
+}
+
 export default async function CollectionPage({
   searchParams,
 }: {
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const filteredProducts =
-    category && categoryMap[category]
-      ? products.filter((p) => p.category === categoryMap[category])
-      : products;
+  const doc = await getAdminContentServer();
+  const adminProducts = normalizeAdminProducts(doc);
+  const baseProducts = adminProducts.length ? adminProducts : products;
+
+  const resolvedCategory = inferCategoryType(category, doc?.categories);
+  const filteredProducts = resolvedCategory
+    ? baseProducts.filter((p) => p.category === resolvedCategory.type)
+    : baseProducts;
 
   return (
     <section className="min-h-screen">
@@ -33,7 +65,7 @@ export default async function CollectionPage({
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-blush-900/20 rounded-full blur-[120px]" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <p className="text-gold-400 text-sm uppercase tracking-[0.3em] mb-4">
-            {category ? categoryMap[category] : "All Arrangements"}
+            {resolvedCategory ? resolvedCategory.label : "All Arrangements"}
           </p>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl">
             Our Collection

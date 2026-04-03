@@ -1,16 +1,64 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-const HERO_IMAGES = [
-  "/images/bouquet-1.jpeg",
-  "/images/bouquet-2.jpeg",
-  "/images/bouquet-3.jpeg",
-];
+import { useEffect, useMemo, useState } from "react";
+import ContentImage from "@/components/ContentImage";
+import { getAdminContentClient } from "@/lib/admin-content-client";
+import {
+  mergeHeroHeadlineString,
+  normalizeHeroImageArray,
+  SITE_CONTENT_DEFAULTS,
+} from "@/lib/site-content-defaults";
+
+const emptySlots = ["", ""] as const;
+const fallbackHeroImages = normalizeHeroImageArray(SITE_CONTENT_DEFAULTS.hero?.heroImages, [...emptySlots]);
+
+function splitHeroHeadline(s: string): [string, string] {
+  const i = s.indexOf("\n");
+  if (i === -1) return [s.trim(), ""];
+  return [s.slice(0, i).trim(), s.slice(i + 1).trim()];
+}
 
 export default function HeroSection() {
+  const h0 = SITE_CONTENT_DEFAULTS.hero;
+  const [eyebrow, setEyebrow] = useState(h0?.eyebrow ?? "Floral Doctor. Canada");
+  const [headline, setHeadline] = useState(() => mergeHeroHeadlineString(h0) || "Art in\nBloom");
+  const [description, setDescription] = useState(
+    h0?.description ??
+      "Handcrafted bouquets that tell a story. Each arrangement is a unique masterpiece, designed for those who appreciate the extraordinary."
+  );
+  const [ctaText, setCtaText] = useState(h0?.ctaText ?? "Wedding Florals");
+  const [heroImages, setHeroImages] = useState<string[]>(fallbackHeroImages);
+
+  useEffect(() => {
+    let mounted = true;
+    getAdminContentClient(false).then((doc) => {
+      if (!mounted || !doc) return;
+      if (!doc.hero) return;
+
+      if (doc.hero.eyebrow) setEyebrow(doc.hero.eyebrow);
+      const hl = mergeHeroHeadlineString(doc.hero);
+      if (hl) setHeadline(hl);
+      if (doc.hero.description) setDescription(doc.hero.description);
+      if (doc.hero.ctaText) setCtaText(doc.hero.ctaText);
+
+      if (Array.isArray(doc.hero.heroImages) && doc.hero.heroImages.length) {
+        setHeroImages(normalizeHeroImageArray(doc.hero.heroImages, fallbackHeroImages));
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const img0 = useMemo(() => heroImages[0] || fallbackHeroImages[0], [heroImages]);
+  const img1 = useMemo(() => heroImages[1] || fallbackHeroImages[1], [heroImages]);
+
+  const [headlineLine1, headlineLine2] = useMemo(() => splitHeroHeadline(headline), [headline]);
+
   return (
     <section
       className="relative min-h-[100vh] flex items-center overflow-hidden bg-[#1a1512] -mt-[72px] pt-[72px]"
@@ -40,7 +88,7 @@ export default function HeroSection() {
       {/* Bento-style image grid - asymmetric, artistic */}
       <div className="absolute inset-0 z-0 flex items-center justify-end pr-0 md:pr-[5%] lg:pr-[10%]">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, ease: [0.21, 0.47, 0.32, 0.98] }}
           className="relative w-full max-w-2xl aspect-[4/5] md:aspect-square"
@@ -51,41 +99,26 @@ export default function HeroSection() {
             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
             className="absolute inset-0 rounded-[2rem] overflow-hidden shadow-premium"
           >
-            <Image
-              src={HERO_IMAGES[0]}
-              alt="Doctor florist floral arrangement"
-              fill
-              priority
-              className="object-cover"
-              sizes="(max-width: 768px) 90vw, 50vw"
-            />
+            <div className="relative h-full w-full">
+              <ContentImage
+                src={img0}
+                alt="Doctor florist floral arrangement"
+                fill
+                priority
+                sizes="(max-width: 768px) 90vw, 50vw"
+              />
+            </div>
           </motion.div>
-          {/* Floating accent images */}
+          {/* Floating accent — top / right */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={false}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-            className="absolute -bottom-6 -left-6 md:-left-12 w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-premium border-2 border-white/10 hidden sm:block"
-          >
-            <Image
-              src={HERO_IMAGES[1]}
-              alt=""
-              fill
-              className="object-cover"
-            />
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
             className="absolute -top-4 -right-4 md:top-1/4 md:-right-8 w-24 h-24 md:w-28 md:h-28 rounded-xl overflow-hidden shadow-premium border-2 border-white/10"
           >
-            <Image
-              src={HERO_IMAGES[2]}
-              alt=""
-              fill
-              className="object-cover"
-            />
+            <div className="relative h-full w-full">
+              <ContentImage src={img1} alt="" fill sizes="128px" />
+            </div>
           </motion.div>
         </motion.div>
       </div>
@@ -94,43 +127,50 @@ export default function HeroSection() {
       <div className="relative z-10 max-w-7xl mx-auto px-6 w-full py-24 md:py-32">
         <div className="max-w-2xl">
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-white text-sm uppercase tracking-[0.3em] mb-4 font-sans font-medium"
           >
-            Doctor Florist. Canada
+            {eyebrow}
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
             className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-white leading-[1.05] tracking-tight"
           >
-            <span className="block">Art in</span>
-            <span className="block text-gold-200 italic">Bloom</span>
+            {headlineLine2 ? (
+              <>
+                <span className="block">{headlineLine1}</span>
+                <span className="block text-gold-200 italic">{headlineLine2}</span>
+              </>
+            ) : (
+              <span className="block">{headlineLine1}</span>
+            )}
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mt-8 text-lg md:text-xl text-white leading-relaxed max-w-md [text-shadow:0_2px_12px_rgba(0,0,0,0.5)]"
           >
-            Handcrafted bouquets that tell a story. Each arrangement is a unique
-            masterpiece, designed for those who appreciate the extraordinary.
+            {description}
           </motion.p>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-12 flex flex-wrap gap-4"
           >
-            <Link
-              href="/collection?category=wedding"
-              className="inline-flex items-center text-white hover:text-gold-300 text-sm uppercase tracking-widest transition-colors duration-300 font-medium [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]"
-            >
-              Wedding Florals →
-            </Link>
+            {ctaText ? (
+              <Link
+                href="/collection"
+                className="inline-flex items-center text-white hover:text-gold-300 text-sm uppercase tracking-widest transition-colors duration-300 font-medium [text-shadow:0_1px_8px_rgba(0,0,0,0.4)]"
+              >
+                {ctaText} →
+              </Link>
+            ) : null}
           </motion.div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/collection", label: "Collection" },
+  { href: "/about", label: "About Us" },
 ];
 
 export default function HeroHeader() {
@@ -15,6 +16,8 @@ export default function HeroHeader() {
   const pathname = usePathname();
   // On home, header is over dark hero. On other pages (collection, product), top may be light.
   const isOverDark = pathname === "/";
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <header
@@ -30,16 +33,20 @@ export default function HeroHeader() {
               : "text-black hover:text-blush-700 font-semibold"
           }`}
         >
-          floral_doctor
+          Floral Doctor
         </Link>
 
         {/* Desktop nav - dark pill for visibility on light hero image */}
-        <ul className="hidden md:flex items-center gap-8 bg-[#1a1512]/80 backdrop-blur-sm rounded-full px-6 py-2.5">
+        <ul className="hidden md:flex items-center gap-5 lg:gap-7 bg-[#1a1512]/80 backdrop-blur-sm rounded-full px-5 lg:px-6 py-2.5">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="text-[15px] tracking-wide text-white hover:text-gold-300 transition-colors"
+                className={`text-[15px] tracking-wide transition-colors ${
+                  isActive(link.href)
+                    ? "text-gold-300"
+                    : "text-white hover:text-gold-300"
+                }`}
               >
                 {link.label}
               </Link>
@@ -77,7 +84,11 @@ export default function HeroHeader() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block text-white hover:text-gold-300 transition-colors text-[15px] py-2"
+                    className={`block transition-colors text-[15px] py-2 ${
+                      isActive(link.href)
+                        ? "text-gold-300"
+                        : "text-white hover:text-gold-300"
+                    }`}
                   >
                     {link.label}
                   </Link>

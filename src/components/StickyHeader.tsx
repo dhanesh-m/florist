@@ -1,16 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/collection", label: "Collection" },
+  { href: "/about", label: "About Us" },
 ];
 
 export default function StickyHeader() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-soft backdrop-blur-md transition-all duration-500">
@@ -19,7 +24,7 @@ export default function StickyHeader() {
           href="/"
           className="font-display text-2xl md:text-3xl tracking-tight text-black font-semibold hover:text-blush-700 transition-colors"
         >
-          floral_doctor
+          Floral Doctor
         </Link>
 
         {/* Desktop nav */}
@@ -28,7 +33,11 @@ export default function StickyHeader() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="text-[15px] tracking-wide text-[#2a2521] hover:text-blush-600 transition-colors"
+                className={`text-[15px] tracking-wide transition-colors ${
+                  isActive(link.href)
+                    ? "text-blush-700 font-medium"
+                    : "text-[#2a2521] hover:text-blush-600"
+                }`}
               >
                 {link.label}
               </Link>
@@ -66,7 +75,11 @@ export default function StickyHeader() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block text-beige-800 hover:text-blush-600 transition-colors text-[15px] py-2"
+                    className={`block transition-colors text-[15px] py-2 ${
+                      isActive(link.href)
+                        ? "text-blush-700 font-medium"
+                        : "text-beige-800 hover:text-blush-600"
+                    }`}
                   >
                     {link.label}
                   </Link>
